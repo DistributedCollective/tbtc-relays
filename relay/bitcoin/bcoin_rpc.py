@@ -3,6 +3,8 @@ import logging
 
 from relay import config
 
+import json
+
 from relay.relay_types import BCoinTx
 from btcspv.types import RelayHeader
 from typing import Any, cast, Dict, List, Optional, Tuple, Union
@@ -22,7 +24,7 @@ async def close_connection() -> None:
 
 async def unwrap_json(resp: aiohttp.ClientResponse) -> Dict[str, Any]:
     try:
-        return cast(Dict[str, Any], await resp.json())
+        return json.loads(await resp.json())
     except aiohttp.client_exceptions.ContentTypeError as e:
         logger.error('Failed to unwrap json from response. '
                      'Hint: is your bcoin api key correct?')
@@ -54,7 +56,6 @@ async def _POST(
 
     result = None
     if resp_json is not None:
-        logger.debug(f'got response {len(resp_json)}')
         result = resp_json['result'] if 'result' in resp_json else resp_json
 
     if status != 200:

@@ -19,21 +19,22 @@ async def push_headers(
         header_q: 'asyncio.Queue[RelayHeader]') -> None:
     '''Push headers from the queue to the relay contract'''
     count = 0
+    limit = 2016
 
     # main relay tx loop
     while True:
         heads = await _get_headers_from_q(header_q)
 
-        start_mod = heads[0]['height'] % 2016
-        end_mod = heads[-1]['height'] % 2016
+        start_mod = heads[0]['height'] % limit
+        end_mod = heads[-1]['height'] % limit
 
         # if we have a difficulty change first
         if start_mod == 0:
             await _add_diff_change(heads)
         # if we span a difficulty change
         elif start_mod > end_mod:
-            pre_change = [h for h in heads if h['height'] % 2016 >= start_mod]
-            post_change = [h for h in heads if h['height'] % 2016 < start_mod]
+            pre_change = [h for h in heads if h['height'] % limit >= start_mod]
+            post_change = [h for h in heads if h['height'] % limit < start_mod]
 
             # await all these to avoid weird race conditions.
             # Will also block if infura goes down
@@ -49,8 +50,7 @@ async def push_headers(
             new_best = heads[-1]
             await _update_best_digest(new_best)
             count = 0
-
-        await asyncio.sleep(45)  # rate limit it hard
+        
 
 
 async def _get_headers_from_q(
@@ -90,6 +90,7 @@ async def _add_headers(headers: List[RelayHeader]) -> None:
 
 
 async def _add_diff_change(headers: List[RelayHeader]) -> None:
+    print('Diff change')
     nonce = next(shared.NONCE)
     logger.info(f'\ndiff change {len(headers)} new headers,\n'
                 f'first is {utils.format_header(headers[0])}\n'
@@ -177,4 +178,4 @@ async def _update_best_digest(
                 f'previous best was {utils.format_header(current_best)}\n'
                 f'new best is {utils.format_header(new_best)}\n')
 
-    asyncio.create_task(shared.sign_and_broadcast(tx))
+    shared.sign_and_broadcast(tx)

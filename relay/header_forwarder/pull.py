@@ -21,7 +21,7 @@ async def pull_headers(
         # sleep then loop again if no header received
         if header_or_none is None:
             logger.debug('sleeping at tip')
-            await asyncio.sleep(60)
+            await asyncio.sleep(10)
             continue
 
         header = cast(RelayHeader, header_or_none)
