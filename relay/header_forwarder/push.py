@@ -45,11 +45,14 @@ async def push_headers(
         else:  # if no difficulty change
             await _add_headers(heads)
 
-        count += len(heads)
-        if count >= HEADERS_PER_BATCH:
+        
+        # if count == 0 or count >= HEADERS_PER_BATCH:
+        if len(heads) > 0:
             new_best = heads[-1]
             await _update_best_digest(new_best)
             count = 0
+
+        count += len(heads)
         
 
 
@@ -140,15 +143,22 @@ async def _update_best_digest(
         # find the latest block in current's history that is an ancestor of new
         is_ancestor = False
         ancestor = current_best
+        originalAncestor = ancestor
+        counter = 0
         while True:
             is_ancestor = await contract.is_ancestor(
                 ancestor['hash_le'],
                 new_best['hash_le'])
             if is_ancestor:
+                counter = 0
                 break
             ancestor = cast(
                 RelayHeader,
                 await bcoin_rpc.get_header_by_hash(ancestor['prevhash']))
+            counter = counter + 1
+            if counter > 200:
+                ancestor = originalAncestor
+                counter = 0
 
         ancestor_le = ancestor['hash_le']
 
@@ -178,4 +188,5 @@ async def _update_best_digest(
                 f'previous best was {utils.format_header(current_best)}\n'
                 f'new best is {utils.format_header(new_best)}\n')
 
-    shared.sign_and_broadcast(tx)
+    asyncio.create_task(shared.sign_and_broadcast(tx))
+    
