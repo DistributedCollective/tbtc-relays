@@ -25,6 +25,3 @@ python-socketio = {extras = ["asyncio_client"],version = "*"}
 riemann-tx = "==2.1.0"
 bitcoin-spv-py = "==2.0.0"
 python-engineio = "==4.1.0"
-
-[requires]
-python_version = "3.7"

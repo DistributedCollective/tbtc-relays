@@ -2,4 +2,4 @@
 
 export PYTHONPATH=$PWD
 cd relay
-pipenv run python ./header_forwarder/h.py .config.env
+pipenv run python ./header_forwarder/h.py .conf.env
