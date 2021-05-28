@@ -57,7 +57,7 @@ cd proxy
 TARGET_URL=$ETH_RCP_ADDRESS \
 TARGET_PORT=$ETH_RPC_PORT \
 PROXY_PORT=6060 \
-HTTP_MODE=0 \
+HTTP_MODE=1 \
 MATCH_REQUESTS=0 \
 MUTE_LOGGING=0 \
 pm2 start eth.js --name eth-rsk-proxy
