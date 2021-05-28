@@ -33,7 +33,7 @@ RUN pipenv install --python=$(pyenv which python3.7)
 COPY . .
 COPY entrypoint.sh .
 
-RUN git clone https://github.com/rumblefishdev/tbtc-rsk-proxy.git proxy
+RUN git clone https://github.com/DistributedCollective/tbtc-rsk-proxy.git proxy
 RUN cd proxy/node-http-proxy && npm install
 RUN cd proxy && npm install
 
