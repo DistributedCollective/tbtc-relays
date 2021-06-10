@@ -202,7 +202,9 @@ async def update_best_digest(new_best: RelayHeader) -> None:
             await bcoin_rpc.get_header_by_hash(current_best_digest))
 
         delta = new_best['height'] - current_best['height'] + 1
-        ancestor = current_best
+        ancestor = cast(
+            RelayHeader,
+            await bcoin_rpc.get_header_by_height(current_best['height']-1))
 
         ancestor_le = ancestor['hash_le']
 
