@@ -217,14 +217,17 @@ async def update_best_digest(new_best: RelayHeader) -> None:
                 delta],
             nonce=nonce)
         try:
+            logger.info("Sending...")
             result = await shared.CONNECTION.preflight_tx(
                 tx,
                 sender=config.get()['ETH_ADDRESS'])
         except RuntimeError:
+            logger.info("runtime error...")
             await asyncio.sleep(10)
             continue
         will_succeed = bool(int(result, 16))
         if not will_succeed:
+            logger.info("Not succed...")
             await asyncio.sleep(10)
 
     logger.info(f'\nmarking new best\n'
