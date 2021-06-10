@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -e
+
 function set_config_string() {
     sed -i "s/\(${1//\//\\/} *= *\).*/\1\"${2//\//\\/}\"/" $3
 }
