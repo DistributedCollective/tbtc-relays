@@ -189,4 +189,48 @@ async def _update_best_digest(
                 f'new best is {utils.format_header(new_best)}\n')
 
     asyncio.create_task(shared.sign_and_broadcast(tx))
-    
+
+async def update_best_digest(new_best: RelayHeader) -> None:
+    '''Send an ethereum transaction that marks a new best known chain tip'''
+    nonce = next(shared.NONCE)
+    will_succeed = False
+
+    while not will_succeed:
+        current_best_digest = await contract.get_best_block()
+        current_best = cast(
+            RelayHeader,
+            await bcoin_rpc.get_header_by_hash(current_best_digest))
+
+        delta = new_best['height'] - current_best['height'] + 1
+        ancestor = current_best
+
+        ancestor_le = ancestor['hash_le']
+
+        tx = shared.make_call_tx(
+            contract=config.get()['CONTRACT'],
+            abi=relay_ABI,
+            method='markNewHeaviest',
+            args=[
+                ancestor_le,
+                current_best["raw"],
+                new_best["raw"],
+                delta],
+            nonce=nonce)
+        try:
+            result = await shared.CONNECTION.preflight_tx(
+                tx,
+                sender=config.get()['ETH_ADDRESS'])
+        except RuntimeError:
+            await asyncio.sleep(10)
+            continue
+        will_succeed = bool(int(result, 16))
+        if not will_succeed:
+            await asyncio.sleep(10)
+
+    logger.info(f'\nmarking new best\n'
+                f'LCA is {ancestor["hash"].hex()}\n'
+                f'previous best was {utils.format_header(current_best)}\n'
+                f'new best is {utils.format_header(new_best)}\n')
+
+    asyncio.create_task(shared.sign_and_broadcast(tx))
+
