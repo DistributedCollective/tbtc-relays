@@ -32,22 +32,14 @@ async def run() -> None:
     latest = cast(
         RelayHeader,
         await bcoin_rpc.get_header_by_hash(latest_digest))
-    better_or_same = cast(
-        RelayHeader,
-        await bcoin_rpc.get_header_by_height(latest['height']))
+    
+    logger.info(f'latest on contract is {utils.format_header(latest)}')
 
-    # see if there's a better block at that height
-    # if so, crawl backwards
-    while latest != better_or_same:
-        latest = cast(
-            RelayHeader,
-            await bcoin_rpc.get_header_by_hash(latest['prevhash']))
-        better_or_same = cast(
-            RelayHeader,
-            await bcoin_rpc.get_header_by_height(latest['height']))
+    info = await bcoin_rpc.get_info()
 
-    logger.info(
-        f'latest is {utils.format_header(latest)}')
+    bitcoindHeight = info['blocks']
+    contractHeight = latest['height']
+    logger.info(f'Bitcoind is {bitcoindHeight - contractHeight}')
 
     asyncio.create_task(pull.pull_headers(latest, header_q))
     asyncio.create_task(push.push_headers(latest, header_q))

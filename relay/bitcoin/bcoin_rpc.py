@@ -146,6 +146,16 @@ async def _get_header_by_height(
         return None
     return cast(dict, block_info_or_none)
 
+async def get_info(session: S = SESSION) -> Optional[Dict]:
+    payload = {
+        'method': 'getblockchaininfo',
+        'params': []
+    }
+    status, blokchain_info_or_none = await _POST(payload=payload, session=session)
+    if status != 200 or blokchain_info_or_none is None:
+        return None
+    return cast(dict, blokchain_info_or_none)
+
 
 async def get_header_by_height(
         height: int,
