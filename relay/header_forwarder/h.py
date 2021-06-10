@@ -39,7 +39,7 @@ async def run() -> None:
 
     bitcoindHeight = info['blocks']
     contractHeight = latest['height']
-    logger.info(f'Bitcoind is {bitcoindHeight - contractHeight}')
+    logger.info(f'Bitcoind is {bitcoindHeight - contractHeight} ahead...')
 
     asyncio.create_task(pull.pull_headers(latest, header_q))
     asyncio.create_task(push.push_headers(latest, header_q))
