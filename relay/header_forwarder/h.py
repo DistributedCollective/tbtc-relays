@@ -42,13 +42,6 @@ async def run() -> None:
     difference = bitcoindHeight - contractHeight
     logger.info(f'Bitcoind is {difference} ahead...')
 
-    if difference > 10:
-        logger.info(f'Jumping to newest...')
-        bitcoindLatest = cast(
-            RelayHeader,
-            await bcoin_rpc.get_header_by_height(bitcoindHeight))
-        await push.update_best_digest(bitcoindLatest)
-
     asyncio.create_task(pull.pull_headers(latest, header_q))
     asyncio.create_task(push.push_headers(latest, header_q))
 
