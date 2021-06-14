@@ -14,7 +14,7 @@ logger = logging.getLogger('root.summa_relay.shared_eth')
 
 GWEI = 1000000000
 DEFAULT_GAS = 500_000
-DEFAULT_GAS_PRICE = 3 * GWEI
+DEFAULT_GAS_PRICE = int(0.075 * GWEI)
 
 CONNECTION: ethrpc.BaseRPC
 NONCE: Iterator[int]  # yields ints, takes no sends
@@ -151,8 +151,6 @@ def _adjust_gas_price(gas_price: int) -> int:
     Returns:
         (int): the adjusted price
     '''
-    if gas_price < GWEI:
-        gas_price = gas_price * GWEI
     if gas_price > 1000 * GWEI:
         logger.error('rejecting high gas price')
         raise ValueError(
@@ -164,8 +162,8 @@ async def _track_tx_result(tx_id: str) -> None:
     '''Keep track of the result of a transaction by polling every 25 seconds'''
     receipt_or_none: Optional[Receipt] = None
 
-    for _ in range(20):
-        await asyncio.sleep(30)
+    for _ in range(40):
+        await asyncio.sleep(5)
         receipt_or_none = await CONNECTION.get_tx_receipt(tx_id)
         if receipt_or_none is not None:
             break
