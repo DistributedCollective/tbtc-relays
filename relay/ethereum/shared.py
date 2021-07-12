@@ -13,8 +13,8 @@ logger = logging.getLogger('root.summa_relay.shared_eth')
 
 
 GWEI = 1000000000
-DEFAULT_GAS = 500_000
-DEFAULT_GAS_PRICE = int(0.075 * GWEI)
+DEFAULT_GAS = 5_000_000
+DEFAULT_GAS_PRICE = int(0.065 * GWEI)
 
 CONNECTION: ethrpc.BaseRPC
 NONCE: Iterator[int]  # yields ints, takes no sends
