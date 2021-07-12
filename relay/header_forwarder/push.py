@@ -11,7 +11,7 @@ from btcspv.types import RelayHeader
 
 logger = logging.getLogger('root.header_forwarder.maintain')
 
-HEADERS_PER_BATCH: int = 5
+HEADERS_PER_BATCH: int = 75
 
 
 async def push_headers(
@@ -48,6 +48,14 @@ async def push_headers(
         
         if len(heads) > 0:
             new_best = heads[-1]
+
+            info await bcoin_rpc.get_info()
+            difference = info['blocks'] - new_best['height']
+            if difference > HEADERS_PER_BATCH:
+                transactionCount = int(difference/HEADERS_PER_BATCH)
+                minutes = transactionCount/2
+                logger.info("Bitcoind is {difference} ahead. Sync ETA: {minutes}...")
+
             await _update_best_digest(new_best)
             count = 0
 
